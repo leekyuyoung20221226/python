@@ -8,3 +8,17 @@
 2. 의료 : 데이터 확보. 예측.
 
 3. 집값예측 -  집값 예측..  
+
+
+코렙에서 matplotlib 한글 처리
+
+코렙에서 matplotlib 한글
+1. 다음을 설치
+!sudo apt-get install -y fonts-nanum
+!sudo fc-cache -fv
+!rm ~/.cache/matplotlib -rf
+
+2. 런타임 재시작
+3. 
+import matplotlib.pyplot as plt
+plt.rc('font',family = 'NanumBarunGothic')
