@@ -105,13 +105,14 @@ music21.converter.parse(new_song).show('mid')
 
 
 # 악보
-stream = music21.converter.parse(little_star)
 music21.environment.set('musicxmlPath', 'C:/Program Files/MuseScore 3/bin/MuseScore3.exe')
+little_star = "tinynotation: 4/4 c4 c4 g4 g4 a4 a4 g2 f4 f4 e4 e4 d4 d4 c2 g4 g4 f4 f4 e4 e4 d2 g4 g4 f4 f4 e4 e4 d2 c4 c4 g4 g4 a4 a4 g2 f4 f4 e4 e4 d4 d4 c2"
+stream = music21.converter.parse(little_star)
+stream.write('musicxml', fp='little_star.jpg')
 
-stream.write('musicxml.png', fp='C:/Program Files/MuseScore 3/bin/MuseScore3.exe')
-
-
+########################################################
 # 여러곡을 학습해서 결합한 새로운 곡을 생성
+little_star="tinynotation: 4/4 c4 c4 g4 g4 a4 a4 g2 f4 f4 e4 e4 d4 d4 c2 g4 g4 f4 f4 e4 e4 d2 g4 g4 f4 f4 e4 e4 d2 c4 c4 g4 g4 a4 a4 g2 f4 f4 e4 e4 d4 d4 c2"
 spring_picnic="tinynotation: 4/8 g8 e8 g8 e8 g8 a8 g4 e8 g8 e8 c8 d8 e8 c4 g8 e8 g8 e8 g8 a8 g4 b8 a8 g8 e8 d8 e8 c4"
 butterfly="tinynotation: 2/4 g8 e8 e4 f8 d8 d4 c8 d8 e8 f8 g8 g8 g4 g8 e8 e8 e8 f8 d8 d4 c8 e8 g8 g8 e8 e8 e4 d8 d8 d8 d8 d8 e8 f4 e8 e8 e8 e8 e8 f8 g4 g8 e8 e4 f8 d8 d4 c8 e8 g8 g8 e8 e8 e4"
 
@@ -121,9 +122,18 @@ seq2 = abc2timeserial(butterfly)
 seq3 = abc2timeserial(spring_picnic)
 seq = seq1+seq2+seq3
 
-x,y = seq2dataset(seq, w, h)
+x_train,y_train = seq2dataset(seq, w, h)
+y_train = to_onehot(y_train)
 
+# LSTM모델 설계 및 학습
+model = Sequential()
+model.add(LSTM(128,activation='relu', input_shape=x_train[0].shape))
+model.add(Dense(y_train.shape[1],activation='softmax'))
+model.compile(loss = 'categorical_crossentropy', optimizer = 'Adam',metrics=['acc'])
+model.fit(x_train,y_train,epochs=200,batch_size=1, verbose=2)
 
+new3_song = arranging_music(model, x_train[0], 50)
+music21.converter.parse(new_song).show('mid')
 
 
 
